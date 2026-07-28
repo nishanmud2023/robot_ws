@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="omniwheel_complete" xmlns:xacro="http://www.ros.org/wiki/xacro" xmlns:gz="http://gazebosim.org/schema">
+
+  <xacro:property name="wheel_r" value="0.1" />
+  <xacro:property name="wheel_sep" value="0.24" />
+  <xacro:property name="wheel_base" value="0.47" />
+
+  <xacro:macro name="sensor_mount" params="prefix parent_link xyz rpy">
+    <link name="${prefix}_sensor_mount">
+      <inertial>
+        <mass value="0.05"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="1e-5" ixy="0" ixz="0" iyy="1e-5" iyz="0" izz="1e-5"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.03 0.03 0.02"/>
+        </geometry>
+        <material name="dark_gray">
+          <color rgba="0.2 0.2 0.2 1"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.03 0.03 0.02"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}_sensor_joint" type="fixed">
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <parent link="${parent_link}"/>
+      <child link="${prefix}_sensor_mount"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:include filename="$(find omniwheel_complete)/urdf/base.xacro" />
+  <xacro:include filename="$(find omniwheel_complete)/urdf/wheels.xacro" />
+  <xacro:include filename="$(find omniwheel_complete)/urdf/gazebo.xacro" />
+
+  <xacro:sensor_mount prefix="lidar" parent_link="base_link" xyz="0.1 0.0 0.28" rpy="0 0 0" />
+  
+  <xacro:sensor_mount prefix="imu" parent_link="base_link" xyz="0.0 0.0 0.05" rpy="0 0 0" />
+
+</robot>

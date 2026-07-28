@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <material name="light_blue">
+    <color rgba="0.79216 0.81961 0.93333 1" />
+  </material>
+
+  <!-- ============================================================
+       Simplified collision proxy for the mecanum wheels.
+
+       The visual meshes model every individual roller as real
+       geometry (~50k triangles each). Using that same mesh as the
+       COLLISION shape means the physics engine sees a rigid, bumpy
+       solid with no rollers that can actually spin freely - so the
+       wheel can turn "correctly" per the MecanumDrive plugin's
+       kinematics, yet never generates the diagonal contact force
+       needed to slide the chassis sideways.
+
+       The standard Gazebo workaround (used in gz-sim's own mecanum
+       demo) is to swap the collision for a plain cylinder and fake
+       the rollers with anisotropic friction (mu1/mu2 + fdir1) in
+       gazebo.xacro. Tune these three values to match your real
+       wheel if the fit looks off in Gazebo's collision-wireframe
+       view (View > collisions).
+       ============================================================ -->
+  <xacro:property name="wheel_collision_radius" value="${wheel_r}" />
+  <xacro:property name="wheel_collision_width" value="0.045" />
+  <xacro:property name="wheel_collision_yoff" value="0.09" />
+
+
+  <link name="front_left_wheel">
+    <inertial>
+      <origin xyz="2.7807E-06 0.1402 2.6321E-06" rpy="0 0 0" />
+      <mass value="0.66652" />
+      <inertia ixx="0.00092295" ixy="8.553E-08" ixz="-5.3777E-10" iyy="0.00095312" iyz="-4.7204E-08" izz="0.00092294" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://omniwheel_complete/meshes/front_left_wheel.STL" />
+      </geometry>
+      <material name="light_blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 ${wheel_collision_yoff} 0" rpy="1.5708 0 0" />
+      <geometry>
+        <cylinder radius="${wheel_collision_radius}" length="${wheel_collision_width}" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint_front_left_wheel" type="continuous">
+    <origin xyz="0.23501 0.12 -0.052129" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="front_left_wheel" />
+    <axis xyz="0 1 0" /> 
+    <dynamics damping="0" friction="0.1" />
+  </joint>
+
+  <link name="front_right_wheel">
+    <inertial>
+      <origin xyz="1.3402E-06 -0.13565 -7.8365E-06" rpy="0 0 0" />
+      <mass value="0.66614" />
+      <inertia ixx="0.00091874" ixy="-5.6126E-08" ixz="-3.1528E-08" iyy="0.00095187" iyz="-2.0145E-10" izz="0.00091866" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://omniwheel_complete/meshes/front_right_wheel.STL" />
+      </geometry>
+      <material name="light_blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 -${wheel_collision_yoff} 0" rpy="1.5708 0 0" />
+      <geometry>
+        <cylinder radius="${wheel_collision_radius}" length="${wheel_collision_width}" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint_front_right_wheel" type="continuous">
+    <origin xyz="0.23501 -0.12 -0.052129" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="front_right_wheel" />
+    <axis xyz="0 1 0" /> 
+    <dynamics damping="0" friction="0.1" />
+  </joint>
+
+  <link name="rear_right_wheel">
+    <inertial>
+      <origin xyz="1.3121E-06 -0.13565 -7.8174E-06" rpy="0 0 0" />
+      <mass value="0.66614" />
+      <inertia ixx="0.00091874" ixy="-5.6351E-08" ixz="-3.1408E-08" iyy="0.00095187" iyz="-9.7503E-11" izz="0.00091866" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://omniwheel_complete/meshes/rear_right_wheel.STL" />
+      </geometry>
+      <material name="light_blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 -${wheel_collision_yoff} 0" rpy="1.5708 0 0" />
+      <geometry>
+        <cylinder radius="${wheel_collision_radius}" length="${wheel_collision_width}" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint_rear_right_wheel" type="continuous">
+    <origin xyz="-0.23499 -0.12 -0.052129" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="rear_right_wheel" />
+    <axis xyz="0 1 0" /> 
+    <dynamics damping="0" friction="0.1" />
+  </joint>
+
+  <link name="rear_left_wheel">
+    <inertial>
+      <origin xyz="2.7943E-06 0.1402 2.629E-06" rpy="0 0 0" />
+      <mass value="0.66652" />
+      <inertia ixx="0.00092295" ixy="8.5558E-08" ixz="-5.6207E-10" iyy="0.00095312" iyz="-4.6704E-08" izz="0.00092294" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://omniwheel_complete/meshes/rear_left_wheel.STL" />
+      </geometry>
+      <material name="light_blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 ${wheel_collision_yoff} 0" rpy="1.5708 0 0" />
+      <geometry>
+        <cylinder radius="${wheel_collision_radius}" length="${wheel_collision_width}" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint_rear_left_wheel" type="continuous">
+    <origin xyz="-0.23499 0.12 -0.052129" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="rear_left_wheel" />
+    <axis xyz="0 1 0" /> 
+    <dynamics damping="0" friction="0.1" />
+  </joint>
+
+</robot>
