@@ -16,10 +16,10 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(
-  FILES
-    urdf.rviz
-  DESTINATION share/${PROJECT_NAME}
-)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/worlds")
+  install(DIRECTORY worlds DESTINATION share/${PROJECT_NAME})
+endif()
 
-ament_package()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gazebo_models")
+  install(DIRECTORY gazebo_models DESTINATION share/${PROJECT_NAME})
+endif()
