@@ -10,9 +10,7 @@ install(
     launch
     meshes
     urdf
-    worlds
     rviz
-    gazebo_models
   DESTINATION share/${PROJECT_NAME}
 )
 
@@ -23,3 +21,4 @@ endif()
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gazebo_models")
   install(DIRECTORY gazebo_models DESTINATION share/${PROJECT_NAME})
 endif()
+ament_package()
