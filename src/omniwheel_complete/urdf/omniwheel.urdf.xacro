@@ -39,8 +39,8 @@
   <xacro:include filename="$(find omniwheel_complete)/urdf/wheels.xacro" />
   <xacro:include filename="$(find omniwheel_complete)/urdf/gazebo.xacro" />
 
-  <xacro:sensor_mount prefix="lidar" parent_link="base_link" xyz="0.1 0.0 0.28" rpy="0 0 0" />
+  <xacro:sensor_mount prefix="lidar" parent_link="base_link" xyz="0.1 0.0 0.24" rpy="0 0 0" />
   
-  <xacro:sensor_mount prefix="imu" parent_link="base_link" xyz="0.0 0.0 0.05" rpy="0 0 0" />
+  <xacro:sensor_mount prefix="imu" parent_link="base_link" xyz="0.0 0.0 0.12" rpy="0 0 0" />
 
 </robot>
