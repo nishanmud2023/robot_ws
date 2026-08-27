@@ -46,26 +46,26 @@ controller_server:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
       min_vel_x: 0.0
-      min_vel_y: -0.22
-      max_vel_x: 0.22
-      max_vel_y: 0.22
-      max_vel_theta: 2.00
+      min_vel_y: -0.12
+      max_vel_x: 0.12
+      max_vel_y: 0.12
+      max_vel_theta: 0.80
       min_speed_xy: 0.0
-      max_speed_xy: 0.22
+      max_speed_xy: 0.12
       min_speed_theta: 0.0
-      acc_lim_x: 2.5
-      acc_lim_y: 2.5
-      acc_lim_theta: 3.0
-      decel_lim_x: -2.5
-      decel_lim_y: -2.5
-      decel_lim_theta: -3.2
+      acc_lim_x: 1.0
+      acc_lim_y: 1.0
+      acc_lim_theta: 1.5
+      decel_lim_x: -1.0
+      decel_lim_y: -1.0
+      decel_lim_theta: -1.5
       vx_samples: 20
       vy_samples: 10
       vtheta_samples: 20
       sim_time: 2.0
       linear_granularity: 0.05
       angular_granularity: 0.025
-      transform_tolerance: 0.2
+      transform_tolerance: 0.5
       xy_goal_tolerance: 0.30
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
@@ -104,7 +104,7 @@ controller_server:
       transform_tolerance: 0.1
       temperature: 0.3
       gamma: 0.015
-      motion_model: "DiffDrive"
+      motion_model: "Omni"
       visualize: true
       regenerate_noises: true
       TrajectoryVisualizer:
@@ -290,7 +290,7 @@ behavior_server:
     local_frame: odom
     global_frame: map
     robot_base_frame: base_footprint
-    transform_tolerance: 0.1
+    transform_tolerance: 0.3
     simulate_ahead_time: 2.0
     max_rotational_vel: 1.0
     min_rotational_vel: 0.4
@@ -312,10 +312,10 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.5, 0.5, 2.0]
-    min_velocity: [-0.5, -0.5, -2.0]
-    max_accel: [2.5, 2.5, 3.2]
-    max_decel: [-2.5, -2.5, -3.2]
+    max_velocity: [0.12, 0.12, 0.8]
+    min_velocity: [-0.12, -0.12, -0.8]
+    max_accel: [1.0, 1.0, 1.5]
+    max_decel: [-1.0, -1.0, -1.5]
     odom_topic: "odom"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
@@ -328,7 +328,7 @@ collision_monitor:
     cmd_vel_in_topic: "cmd_vel_smoothed"
     cmd_vel_out_topic: "cmd_vel"
     state_topic: "collision_monitor_state"
-    transform_tolerance: 0.2
+    transform_tolerance: 0.3
     source_timeout: 1.0
     base_shift_correction: True
     stop_pub_timeout: 2.0

@@ -10,6 +10,7 @@ install(
     launch
     meshes
     urdf
+    maps
     rviz
   DESTINATION share/${PROJECT_NAME}
 )
