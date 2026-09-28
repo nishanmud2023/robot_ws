@@ -104,6 +104,6 @@ def generate_launch_description():
     launchDescriptionObject.add_action(rviz_node)
     launchDescriptionObject.add_action(interactive_marker_twist_server_node)
     launchDescriptionObject.add_action(slam_toolbox_launch)
-    launchDescriptionObject.add_action(navigation_launch)
+    #launchDescriptionObject.add_action(navigation_launch)
 
     return launchDescriptionObject
