@@ -16,8 +16,8 @@ class SerialNode(Node):
         self.declare_parameter('baud_rate', 115200)
         self.declare_parameter('wheel_radius', 0.1)
         self.declare_parameter('wheelbase', 0.47)
-        self.declare_parameter('wheel_separation', 0.52)
-        self.declare_parameter('ticks_per_rev', 468)
+        self.declare_parameter('wheel_separation', 0.52) #changed from 24 as physically measured
+        self.declare_parameter('ticks_per_rev', 936) # changed from 468(in datasheet) to match firm wware and as only A channel is to iSR 4x not needed
         self.declare_parameter('max_rpm', 85.0)
         self.declare_parameter('control_period', 0.02)
 
@@ -199,6 +199,10 @@ class SerialNode(Node):
         odom.twist.twist.linear.x = vx
         odom.twist.twist.linear.y = vy
         odom.twist.twist.angular.z = wz
+
+        odom.twist.covariance[0] = 0.01    # vx variance
+        odom.twist.covariance[7] = 0.08    # vy variance (higher — mecanum roller slip)
+        odom.twist.covariance[35] = 0.02   # wz variance
 
         self.odom_pub.publish(odom)
 

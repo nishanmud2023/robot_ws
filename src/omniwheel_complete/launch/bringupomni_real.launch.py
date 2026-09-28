@@ -106,6 +106,18 @@ def generate_launch_description():
             'use_sim_time': use_sim_time,
         }],
     )
+    # ------------------------------------------------------------------
+    # joint_state_publisher — publishes /joint_states (all wheels at 0)
+    # so robot_state_publisher can publish TF for the continuous wheel
+    # joints. Replace with real encoder angles from serial_node later.
+    # ------------------------------------------------------------------
+    joint_state_publisher_node = Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time}],
+    )
 
     # ------------------------------------------------------------------
     # serial_node — the Arduino bridge.
@@ -225,6 +237,7 @@ def generate_launch_description():
     ld.add_action(lidar_port_arg)
 
     ld.add_action(robot_state_publisher_node)
+    ld.add_action(joint_state_publisher_node)  # newly added to get joints published
     ld.add_action(serial_node)
     ld.add_action(imu_node)
     ld.add_action(lidar_node)
