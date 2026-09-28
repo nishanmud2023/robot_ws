@@ -2,3 +2,4 @@ build/
 install/
 log/
 src/omniwheel_complete/gazebo_models/
+__pycache__/
