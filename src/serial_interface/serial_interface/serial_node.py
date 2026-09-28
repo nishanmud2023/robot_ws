@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import JointState
 import serial
 import math
 import time
@@ -40,6 +41,14 @@ class SerialNode(Node):
 
         # --- Odometry publisher ---
         self.odom_pub = self.create_publisher(Odometry, '/wheel/odometry', 10)
+
+        # --- Per-wheel publishers (for rosbag / plotting) ---
+        # commands/states: m and m/s | pwm: signed duty in effort | pd_error: m/s in velocity
+        self.wheel_names = ['fl', 'fr', 'bl', 'br']
+        self.wheel_cmd_pub = self.create_publisher(JointState, '/wheel/commands', 10)
+        self.wheel_state_pub = self.create_publisher(JointState, '/wheel/states', 10)
+        self.wheel_pwm_pub = self.create_publisher(JointState, '/wheel/pwm', 10)
+        self.wheel_err_pub = self.create_publisher(JointState, '/wheel/pd_error', 10)
 
         # --- Odometry integration state (dead reckoning) ---
         self.x = 0.0
@@ -90,6 +99,15 @@ class SerialNode(Node):
         ticks_bl = round(rpm_bl * ticks_per_rev * control_period / 60.0)
         ticks_br = round(rpm_br * ticks_per_rev * control_period / 60.0)
 
+        # Per-wheel commanded surface speed (m/s), from the ticks actually sent
+        tick_to_ms = 2.0 * math.pi * wheel_radius / (ticks_per_rev * control_period)
+        cmd = JointState()
+        cmd.header.stamp = self.get_clock().now().to_msg()
+        cmd.name = self.wheel_names
+        cmd.velocity = [ticks_fl * tick_to_ms, ticks_fr * tick_to_ms,
+                        ticks_bl * tick_to_ms, ticks_br * tick_to_ms]
+        self.wheel_cmd_pub.publish(cmd)
+
         self.send_ticks(ticks_fl, ticks_fr, ticks_bl, ticks_br)
 
     def send_ticks(self, fl, fr, bl, br):
@@ -116,6 +134,8 @@ class SerialNode(Node):
                     line = line.strip()
                     if line.startswith('E,'):
                         self.process_encoder_line(line)
+                    elif line.startswith('P,'):
+                        self.process_control_line(line)
                     elif line:
                         self.get_logger().debug(f"Arduino: {line}")
 
@@ -162,6 +182,17 @@ class SerialNode(Node):
         w_br = (d_br / ticks_per_rev) * 2.0 * math.pi / dt
 
         wheel_radius = self.get_parameter('wheel_radius').value
+
+        # Per-wheel measured distance (m) and surface speed (m/s)
+        tick_to_m = 2.0 * math.pi * wheel_radius / ticks_per_rev
+        st = JointState()
+        st.header.stamp = now.to_msg()
+        st.name = self.wheel_names
+        st.position = [fl * tick_to_m, fr * tick_to_m, bl * tick_to_m, br * tick_to_m]
+        st.velocity = [w_fl * wheel_radius, w_fr * wheel_radius,
+                       w_bl * wheel_radius, w_br * wheel_radius]
+        self.wheel_state_pub.publish(st)
+
         wheelbase = self.get_parameter('wheelbase').value
         wheel_separation = self.get_parameter('wheel_separation').value
         l = (wheelbase + wheel_separation) / 2.0
@@ -181,6 +212,38 @@ class SerialNode(Node):
         self.theta += dtheta
 
         self.publish_odometry(vx, vy, wz, now)
+
+    def process_control_line(self, line):
+        """Parse 'P,pwm_fl,pwm_fr,pwm_bl,pwm_br,err_fl,err_fr,err_bl,err_br'."""
+        parts = line.split(',')
+        if len(parts) != 9:
+            return  # malformed, drop it
+
+        try:
+            pwm = [float(int(p)) for p in parts[1:5]]
+            err_ticks = [float(p) for p in parts[5:9]]
+        except ValueError:
+            return  # non-numeric junk, drop it
+
+        stamp = self.get_clock().now().to_msg()
+
+        # PD error: ticks per control period -> m/s
+        wheel_radius = self.get_parameter('wheel_radius').value
+        ticks_per_rev = self.get_parameter('ticks_per_rev').value
+        control_period = self.get_parameter('control_period').value
+        tick_to_ms = 2.0 * math.pi * wheel_radius / (ticks_per_rev * control_period)
+
+        pwm_msg = JointState()
+        pwm_msg.header.stamp = stamp
+        pwm_msg.name = self.wheel_names
+        pwm_msg.effort = pwm
+        self.wheel_pwm_pub.publish(pwm_msg)
+
+        err_msg = JointState()
+        err_msg.header.stamp = stamp
+        err_msg.name = self.wheel_names
+        err_msg.velocity = [e * tick_to_ms for e in err_ticks]
+        self.wheel_err_pub.publish(err_msg)
 
     def publish_odometry(self, vx, vy, wz, stamp):
         odom = Odometry()
